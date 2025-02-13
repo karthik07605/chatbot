@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            background-color: #fff;
+        }
+        #input {
+            margin-top: 10px;
+            padding: 10px;
+            width: 80%;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Chat</h1>
+    <div id="messages">
+        {% for message in messages %}
+            <p><strong>{{ message.username }}:</strong> {{ message.text }}</p>
+        {% endfor %}
+    </div>
+    <input id="input" type="text" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Receive messages
+        socket.on('message', function(msg) {
+            const messages = document.getElementById('messages');
+            const messageElement = document.createElement('p');
+            messageElement.textContent = msg;
+            messages.appendChild(messageElement);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('input');
+            const msg = input.value;
+            if (msg.trim()) {
+                socket.send(msg);
+                input.value = '';
+            }
+        }
+
+        // Send message on Enter key press
+        document.getElementById('input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
